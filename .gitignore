@@ -1,1 +1,5 @@
 .venv
+*.cpython-311.pyc
+__pycache__
+.pre-commit-config.yaml
+*.pyc
