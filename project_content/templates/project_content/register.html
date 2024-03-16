@@ -1,0 +1,16 @@
+{% extends 'project_content/base.html' %}
+{% block content %}
+    <h1> Register now! </h1>
+
+    <form method="POST" autocomplete="off">
+
+        {% csrf_token %}
+
+        {{registerform.as_table}}
+
+        <input type="submit" value="Register"/>
+
+
+    </form>
+
+{% endblock %}

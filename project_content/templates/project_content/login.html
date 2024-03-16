@@ -1,0 +1,18 @@
+{% extends 'project_content/base.html' %}
+{% block content %}
+
+    <h1> Log in or Register to get started </h1>
+    <form method="POST" autocomplete="off">
+
+        {% csrf_token %}
+
+        {{loginform.as_p}}
+
+        <input type="submit" value="Login"/>
+    </form>
+    <b>
+      <a href="{% url 'register' %}"> Register here </a>
+    </b>
+   
+
+  {% endblock %}

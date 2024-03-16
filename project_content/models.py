@@ -1,6 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
 class Locations(models.Model):
     club = models.CharField(max_length=500, blank=True, null=True)
     name = models.CharField(max_length=500)

@@ -7,7 +7,45 @@ from django.conf import settings
 from .forms import *
 from datetime import datetime
 
-class HomeView(ListView):
+from django.contrib.auth.models import auth
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+def register(request):
+    form = CreateUserForm()
+    if request.method == "POST":
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+
+    context = {'registerform':form}
+    return render(request, 'project_content/register.html', context=context)
+
+
+def login_view(request):
+    form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                auth.login(request, user)
+                return redirect("my_home_view")
+            
+    context = {'loginform':form}
+    return render(request, 'project_content/login.html', context=context)
+
+
+def user_logout(request):
+    auth.logout(request)
+    return redirect("login")
+
+
+class HomeView(LoginRequiredMixin, ListView):
     template_name = "project_content/home.html"
     context_object_name = 'mydata'
     model = Locations
