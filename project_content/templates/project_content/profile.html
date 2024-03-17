@@ -1,0 +1,17 @@
+{% extends 'project_content/base.html' %}
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+  
+  <form method="post">
+    {% csrf_token %}
+    {{ password_form.as_p }}
+    <button type="submit">Change password</button>
+  </form>
+
+
+{% endblock content %}

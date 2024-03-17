@@ -36,7 +36,7 @@
                         <td> {{a.zipcode}} </td>
                         <td> {{a.city}} </td>
                         <td> {{a.country}} </td>
-                        <td> <a href="{% url 'my_geocoding_view' a.id %}"> Geocode!</a> </td>
+                        <td> <a href="{% url 'geocoding' a.id %}"> Geocode!</a> </td>
                        
                     </tr>
 
@@ -47,22 +47,6 @@
             </table>
         {% endif %}
      </div>
-
-     <div class="linkholder">  
-        <a href="{% url 'my_distance_view' %}"> Calculate distances</a> 
-
-    </div>
-
-    <div class="linkholder">  
-        <a href="{% url 'my_map_view' %}"> Go to the map</a> 
-
-    </div>
-
-    <div class="linkholder">  
-        <a href="{% url 'user-logout' %}"> Logout here </a>
-    </div>
-
-
 </div>
 
 

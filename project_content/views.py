@@ -12,6 +12,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+
 def register(request):
     form = CreateUserForm()
     if request.method == "POST":
@@ -34,7 +37,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 auth.login(request, user)
-                return redirect("my_home_view")
+                return redirect("home")
             
     context = {'loginform':form}
     return render(request, 'project_content/login.html', context=context)
@@ -43,6 +46,25 @@ def login_view(request):
 def user_logout(request):
     auth.logout(request)
     return redirect("login")
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, request.user)
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=request.user)
+
+    password_form = PasswordChangeForm(user=request.user)
+
+    context = {
+        'form': form,
+        'password_form': password_form,
+    }
+    return render(request, 'project_content/profile.html', context)
 
 
 class HomeView(LoginRequiredMixin, ListView):

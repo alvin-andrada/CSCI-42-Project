@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'polls',
     'project_content',
     'crispy_forms', 
-    'crispy_bootstrap4'
+    'crispy_bootstrap4',
+    'crispy_bootstrap5',
 ]
 
 MIDDLEWARE = [
@@ -108,7 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 GOOGLE_API_KEY = os.environ.get('GMAPS_API_KEY')
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 LANGUAGE_CODE = 'en-us'
 

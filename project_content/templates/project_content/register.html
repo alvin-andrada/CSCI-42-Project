@@ -1,16 +1,23 @@
 {% extends 'project_content/base.html' %}
+{% load crispy_forms_tags %}
+{% block nav_pills %}
+<ul class="nav nav-pills">
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}" href="{% url 'register' %}">Register</a>
+    </li>
+</ul>
+{% endblock %}
+
 {% block content %}
-    <h1> Register now! </h1>
-
+<div class="container">
     <form method="POST" autocomplete="off">
-
         {% csrf_token %}
-
-        {{registerform.as_table}}
-
-        <input type="submit" value="Register"/>
-
-
+        {{registerform|crispy}}
+        <button type="submit" class="btn btn-primary">Register</button>
     </form>
+</div>
 
 {% endblock %}
