@@ -161,7 +161,7 @@ class DistanceView(View):
         else: 
             print(form.errors)
         
-        return redirect('my_distance_view')
+        return redirect('distance')
 
 
 class GeocodingView(View):
