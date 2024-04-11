@@ -57,6 +57,9 @@
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'user-logout' %}active{% endif %}" href="{% url 'user-logout' %}">Logout</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'my_route_view' %}active{% endif %}" href="{% url 'my_route_view' %}">Route</a>
+                </li>
             </ul>
             {% endblock nav_pills %}
             

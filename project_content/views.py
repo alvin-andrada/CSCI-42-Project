@@ -1,3 +1,5 @@
+from django.forms import modelformset_factory
+import json
 from django.views.generic import ListView
 from django.views import View
 from django.shortcuts import render, redirect
@@ -209,3 +211,52 @@ class GeocodingView(View):
         
         return render(request, self.template_name, context)
 
+class Route_CreateView(View):
+    template_name="project_content/route_create.html"
+    display="project_content/route_display.html"
+
+    key = settings.GOOGLE_API_KEY
+
+    def get(self, request):
+        form = DriverForm()
+        passengerSet = modelformset_factory(Locations, form=PassengerForm, extra=1)
+        passenger = passengerSet(queryset=Locations.objects.none())
+
+        context = {
+            'driver': form,
+            'passengerFormset': passenger
+        }
+
+        return render(request, self.template_name, context)
+    
+    def post(self, request):
+        driver = DriverForm(request.POST)
+        passengerFormset = modelformset_factory(Locations, form=PassengerForm, extra=2)
+        passengerForm = passengerFormset(request.POST)
+        
+        if driver.is_valid():
+            origin = driver.cleaned_data['origin']
+            destination = driver.cleaned_data['destination']
+            origin_placeid = Locations.objects.get(name=origin).place_id
+            destination_placeid = Locations.objects.get(name=destination).place_id
+        
+        passenger_list = []
+        for passenger in passengerForm:
+            if passenger.is_valid():
+                data = passenger.cleaned_data["passenger"]
+                passenger_placeid = Locations.objects.get(name=data).place_id
+                waypoint = {"location": {"placeId": passenger_placeid},"stopover": True}
+                passenger_list.append(waypoint)
+
+        key=settings.GOOGLE_API_KEY
+        context = {
+            "google_api_key": key,
+            "origin": origin,
+            "destination": destination,
+            "waypoints": json.dumps(passenger_list),
+            "origin_placeid": origin_placeid,
+            "destination_placeid": destination_placeid,
+        }
+
+        return render(request, self.display, context)
+        # return render(request, self.template_name, context)

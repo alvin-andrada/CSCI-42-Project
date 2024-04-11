@@ -40,3 +40,18 @@ class DistanceForm(ModelForm):
     class Meta: 
         model = Distances
         exclude = ['created_at', 'edited_at', 'distance_km','duration_mins','duration_traffic_mins']
+
+class DriverForm(ModelForm):
+    origin = forms.ModelChoiceField(label="origin", required=True, queryset=Locations.objects.all())
+    destination = forms.ModelChoiceField(label="destination", required=True, queryset=Locations.objects.all())
+    class Meta:
+        model = Locations
+        fields = ['lat', 'lng']
+
+class PassengerForm(ModelForm):
+    passenger = forms.ModelChoiceField(label="passenger", required=False, queryset=Locations.objects.all())
+    class Meta:
+        model = Locations
+        # fields = ['lat', 'lng']
+        fields = []
+        # exclude = '__all__'

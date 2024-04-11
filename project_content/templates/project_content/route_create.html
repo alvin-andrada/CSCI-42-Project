@@ -1,0 +1,78 @@
+{% extends 'project_content/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="pageholder">
+    <div class="titleholder"> 
+        
+        <div class="title"> Routes Form </div> 
+        
+    </div>
+
+
+    <div class="linkholder">
+     <!-- <form action="{% url 'my_route_view' %}" method="post"> -->
+    <form method="post" id="form_container">
+        {% csrf_token %}
+        <div class="linkholder"> 
+            
+            <div class="form1 ml-3"> {{driver.origin|as_crispy_field}} </div>
+            <div class="form1 ml-3"> {{driver.destination|as_crispy_field}} </div>
+            
+            <h3>Passengers</h3>
+            <div id="passenger_form_list">
+                {{ passengerFormset.management_form }}
+                {% for psngr in passengerFormset %}
+                    <div class="form1 ml-3" name="passenger" id="form_1">{{psngr.passenger|as_crispy_field}}</div>
+                {% endfor %}
+            </div>
+
+            <button class="ourbutton" id="add_passenger" type="button">Add Passenger</button>
+            <button class="ourbutton" type="submit"> Submit </button>
+
+
+        </div>
+    </form>
+    </div>
+
+</div>
+
+<script>
+    
+    
+    // v1. Working version
+    const add_passenger = document.getElementById("add_passenger")
+    add_passenger.addEventListener('click', add_passengerForm)
+    const form = document.getElementById("form_1")
+    let totalForms = document.querySelector("#id_form-TOTAL_FORMS")
+    let form_count = 0
+    
+    function add_passengerForm(event){
+        if(event){
+            event.preventDefault()
+        }
+        form_count++
+        
+        let current_form = document.getElementById("passenger_form_list")
+        let duplicate_form = form.cloneNode(true)
+
+        let formRegex = RegExp('form-(\\d){1}-', 'g')
+        duplicate_form.innerHTML = duplicate_form.innerHTML.replace(formRegex, `form-${form_count}-`)
+        current_form.append(duplicate_form)
+        totalForms.setAttribute('value', `${form_count+1}`)
+
+        // v1 kinda working
+        // duplicate_form.setAttribute('id', 'form_' + form_count)
+        // current_form.append(duplicate_form)
+        // totalForms.setAttribute('value', `${form_count+1}`)
+    }
+    
+    // --------- end ----------
+ 
+        // const empty_form = document.getElementsByName("passenger").cloneNode(true)
+        // empty_form.setAttribute('class', 'form1 ml-3')
+        // current_form.append(empty_form)
+    // }
+</script>
+
+{% endblock %}

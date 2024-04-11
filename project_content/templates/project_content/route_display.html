@@ -1,0 +1,72 @@
+{% extends 'project_content/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route</title>
+    <style>
+        /* Set the size of the map container */
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+    <h1>Route from {{ origin.name }} to {{ destination.name }}</h1>
+    <!-- <p>Distance: {{ distance_km }} km</p>
+    <p>Duration: {{ duration_mins }} minutes</p> -->
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Include the Google Maps JavaScript API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initMap" async defer></script>
+    <script>
+        // Initialize the map
+        function initMap() {
+            // Create map centered on a midpoint between origin and destination
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 7,
+                center: {lat: ({{ origin.lat }} + {{ destination.lat }}) / 2, lng: ({{ origin.lng }} + {{ destination.lng }}) / 2}
+            });
+
+            // Define route
+            var directionsService = new google.maps.DirectionsService();
+            var directionsDisplay = new google.maps.DirectionsRenderer();
+
+            // Set directions display to the map
+            directionsDisplay.setMap(map);
+
+            var unprocessed_string = '{{ waypoints }}';
+            var passenger = jQuery.parseJSON(unprocessed_string.replace(/&quot;/g,'"'))
+
+
+            // Define route request
+            var request = {
+                origin: {
+                    placeId: "{{ origin_placeid }}"
+                },
+                destination: {
+                    placeId: "{{ destination_placeid }}"
+                },
+                travelMode: 'DRIVING',
+                waypoints: passenger,
+                optimizeWaypoints: true,
+            };
+
+            // Get directions and display on the map
+            directionsService.route(request, function(response, status) {
+                if (status == 'OK') {
+                    directionsDisplay.setDirections(response);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+{% endblock %}
