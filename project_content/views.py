@@ -100,6 +100,8 @@ class MapView(View):
 
         return render(request, self.template_name, context)
 
+
+
 class DistanceView(View):
     template_name = "project_content/distance.html"
 
@@ -118,19 +120,19 @@ class DistanceView(View):
         if form.is_valid(): 
             from_location = form.cleaned_data['from_location']
             from_location_info = Locations.objects.get(name=from_location)
-            from_adress_string = str(from_location_info.adress)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
+            from_address_string = str(from_location_info.address)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
 
             to_location = form.cleaned_data['to_location']
             to_location_info = Locations.objects.get(name=to_location)
-            to_adress_string = str(to_location_info.adress)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
+            to_address_string = str(to_location_info.address)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
 
             mode = form.cleaned_data['mode']
             now = datetime.now()
 
             gmaps = googlemaps.Client(key= settings.GOOGLE_API_KEY)
             calculate = gmaps.distance_matrix(
-                    from_adress_string,
-                    to_adress_string,
+                    from_address_string,
+                    to_address_string,
                     mode = mode,
                     departure_time = now
             )
@@ -178,11 +180,11 @@ class GeocodingView(View):
             place_id = location.place_id
             label = "from my database"
 
-        elif location.adress and location.country and location.zipcode and location.city != None: 
-            adress_string = str(location.adress)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
+        elif location.address and location.country and location.zipcode and location.city != None: 
+            address_string = str(location.address)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
 
             gmaps = googlemaps.Client(key = settings.GOOGLE_API_KEY)
-            result = gmaps.geocode(adress_string)[0]
+            result = gmaps.geocode(address_string)[0]
             
             lat = result.get('geometry', {}).get('location', {}).get('lat', None)
             lng = result.get('geometry', {}).get('location', {}).get('lng', None)
@@ -260,3 +262,38 @@ class Route_CreateView(View):
 
         return render(request, self.display, context)
         # return render(request, self.template_name, context)
+
+# class MapView(View):
+#     def get(self, request):
+#         form = LocationForm()
+#         return render(request, 'project_content/select_route.html', {'form': form})
+    
+#     def post(self, request):
+#         form = LocationForm(request.POST)
+#         if form.is_valid():
+#             google_api_key = settings.GOOGLE_API_KEY
+#             origin = form.cleaned_data['origin']
+#             destination = form.cleaned_data['destination']
+#             waypoint = form.cleaned_data.get('waypoint')  # Get the selected waypoint, if any
+            
+#             # Initialize Google Maps client with your API key
+#             gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
+            
+#             # Define the waypoints list for the API request
+#             waypoints = [waypoint.address] if waypoint else None
+            
+#             # Make API request to get directions
+#             directions_result = gmaps.directions(origin.address, destination.address, mode="driving", waypoints=waypoints)
+            
+#             # Extract route information
+#             route_info = directions_result[0]['legs'][0]
+#             distance_km = route_info['distance']['value'] / 1000  # Convert meters to kilometers
+#             duration_mins = route_info['duration']['value'] / 60  # Convert seconds to minutes
+            
+#             # Render the route page with route information
+#             return render(request, 'project_content/route.html', {'google_api_key': google_api_key, 'origin': origin, 'destination': destination, 
+#                                                   'distance_km': distance_km, 'duration_mins': duration_mins,
+#                                                   'waypoint': waypoint})
+    
+#         # If form is not valid or if the request is not POST, redirect to home page
+#         return redirect('home')

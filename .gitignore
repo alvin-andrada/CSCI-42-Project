@@ -3,3 +3,4 @@
 __pycache__
 .pre-commit-config.yaml
 *.pyc
+constant.txt
