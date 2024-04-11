@@ -120,19 +120,19 @@ class DistanceView(View):
         if form.is_valid(): 
             from_location = form.cleaned_data['from_location']
             from_location_info = Locations.objects.get(name=from_location)
-            from_address_string = str(from_location_info.address)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
+            from_adress_string = str(from_location_info.adress)+", "+str(from_location_info.zipcode)+", "+str(from_location_info.city)+", "+str(from_location_info.country)
 
             to_location = form.cleaned_data['to_location']
             to_location_info = Locations.objects.get(name=to_location)
-            to_address_string = str(to_location_info.address)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
+            to_adress_string = str(to_location_info.adress)+", "+str(to_location_info.zipcode)+", "+str(to_location_info.city)+", "+str(to_location_info.country)
 
             mode = form.cleaned_data['mode']
             now = datetime.now()
 
             gmaps = googlemaps.Client(key= settings.GOOGLE_API_KEY)
             calculate = gmaps.distance_matrix(
-                    from_address_string,
-                    to_address_string,
+                    from_adress_string,
+                    to_adress_string,
                     mode = mode,
                     departure_time = now
             )
@@ -180,11 +180,11 @@ class GeocodingView(View):
             place_id = location.place_id
             label = "from my database"
 
-        elif location.address and location.country and location.zipcode and location.city != None: 
-            address_string = str(location.address)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
+        elif location.adress and location.country and location.zipcode and location.city != None: 
+            adress_string = str(location.adress)+", "+str(location.zipcode)+", "+str(location.city)+", "+str(location.country)
 
             gmaps = googlemaps.Client(key = settings.GOOGLE_API_KEY)
-            result = gmaps.geocode(address_string)[0]
+            result = gmaps.geocode(adress_string)[0]
             
             lat = result.get('geometry', {}).get('location', {}).get('lat', None)
             lng = result.get('geometry', {}).get('location', {}).get('lng', None)
@@ -262,7 +262,7 @@ class Route_CreateView(View):
 
         return render(request, self.display, context)
         # return render(request, self.template_name, context)
-
+        
 # class MapView(View):
 #     def get(self, request):
 #         form = LocationForm()
@@ -297,3 +297,31 @@ class Route_CreateView(View):
     
 #         # If form is not valid or if the request is not POST, redirect to home page
 #         return redirect('home')
+
+
+def CreateRoom(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        room = request.POST['room']
+
+        try:
+            get_room = Room.objects.get(room_name=room)
+        except Room.DoesNotExist:
+            new_room = Room(room_name=room)
+            new_room.save()
+
+        return redirect('room', room_name=room, username=username)
+
+    return render(request, 'project_content/room_create.html')
+
+def MessageView(request, room_name, username):
+    get_room = Room.objects.get(room_name=room_name)
+    get_messages = Message.objects.filter(room=get_room)
+    
+    context = {
+        "messages": get_messages,
+        "user": username,
+        "room_name": room_name,
+    }
+    
+    return render(request, 'project_content/message.html', context)

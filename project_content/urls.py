@@ -12,6 +12,7 @@ urlpatterns = [
     path("distance", DistanceView.as_view(), name='distance'), 
     path("map", MapView.as_view(), name='map'), 
     path("route_create", Route_CreateView.as_view(), name='my_route_view'),
+    path('message', views.CreateRoom, name='create-room'),
+    path('<str:room_name>/<str:username>/', views.MessageView, name='room'),
    
-
 ]
