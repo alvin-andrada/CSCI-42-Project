@@ -1,7 +1,9 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import *
+
+from project_content.models import *
+
 
 class ChatConsumer(AsyncWebsocketConsumer):
     
@@ -39,4 +41,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         get_room_by_name = Room.objects.get(room_name=data['room_name'])
         if not Message.objects.filter(message=data['message']).exists():
             new_message = Message(room=get_room_by_name, sender=data['sender'], message=data['message'])
+
             new_message.save()
+

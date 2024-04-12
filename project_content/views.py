@@ -298,7 +298,6 @@ class Route_CreateView(View):
 #         # If form is not valid or if the request is not POST, redirect to home page
 #         return redirect('home')
 
-
 def CreateRoom(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -312,7 +311,7 @@ def CreateRoom(request):
 
         return redirect('room', room_name=room, username=username)
 
-    return render(request, 'project_content/room_create.html')
+    return render(request, 'project_content/room.html')
 
 def MessageView(request, room_name, username):
     get_room = Room.objects.get(room_name=room_name)

@@ -30,7 +30,6 @@ class Distances (models.Model):
     def __str__(self):
         return self.id
 
-
 class Room(models.Model):
     room_name = models.CharField(max_length=255)
 
