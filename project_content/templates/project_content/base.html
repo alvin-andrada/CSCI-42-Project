@@ -52,7 +52,7 @@
                     <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'messages' %}active{% endif %}" href="#">Messages</a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'create-room' or request.resolver_match.url_name == 'room' %}active{% endif %}" href="{% url 'create-room' %}">Messages</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'distance' %}active{% endif %}" href="{% url 'distance' %}">Distance</a>
