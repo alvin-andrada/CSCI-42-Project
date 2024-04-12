@@ -12,7 +12,6 @@ crispy-bootstrap5==2024.2
 cryptography==42.0.5
 daphne==4.1.2
 Django==5.0.1
-django-channels==0.7.0
 django-ckeditor==6.5.1
 django-crispy-forms==2.1
 django-js-asset==2.0.0
