@@ -1,78 +1,219 @@
 {% extends 'project_content/base.html' %}
-{% load crispy_forms_tags %}
 {% block content %}
+{% load crispy_forms_tags %}
+<style>
+    /* CSS Styling */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .pageholder {
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .titleholder {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .title {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .linkholder {
+        margin-top: 20px;
+    }
+
+    .form-content {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .input-field {
+        margin-top: 10px;
+    }
+
+    .our-button {
+        padding: 10px 20px;
+        background-color: blue;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .our-button:hover {
+        background-color: #003366;
+    }
+
+    .passenger-form {
+        margin-top: 10px;
+    }
+
+    .remove-passenger {
+        padding: 5px 10px;
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .remove-passenger:hover {
+        background-color: #990000;
+    }
+
+    /* Custom dropdown styling */
+    .select-field {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .select-field select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+    .select-field::after {
+        content: '\25BC';
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #999;
+    }
+</style>
 
 <div class="pageholder container">
-    <div class="titleholder"> 
-        
-        <div class="title"> Routes Form </div> 
-        
+    <div class="titleholder">
+        <div class="title"> Routes Form </div>
     </div>
-
 
     <div class="linkholder">
-     <!-- <form action="{% url 'my_route_view' %}" method="post"> -->
-    <form method="post" id="form_container">
-        {% csrf_token %}
-        <div class="linkholder"> 
-            
-            <div class="form1 ml-3"> {{driver.origin|as_crispy_field}} </div>
-            <div class="form1 ml-3"> {{driver.destination|as_crispy_field}} </div>
-            
-            <h3>Passengers</h3>
-            <div id="passenger_form_list">
-                {{ passengerFormset.management_form }}
-                {% for psngr in passengerFormset %}
-                    <div class="form1 ml-3" name="passenger" id="form_1">{{psngr.passenger|as_crispy_field}}</div>
-                {% endfor %}
+        <form method="post" id="form_container">
+            {% csrf_token %}
+            <div class="form-content">
+                <div class="form-group">
+                    <label for="id_origin">Origin</label>
+                    <div class="select-field ml-3">
+                        {{ driver.origin|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_destination">Destination</label>
+                    <div class="select-field ml-3">
+                        {{ driver.destination|as_crispy_field }}
+                    </div>
+                </div>
+
+                <h3>Passengers</h3>
+                <div id="passenger_form_list">
+                    {{ passengerFormset.management_form }}
+                    {% for psngr in passengerFormset %}
+                        <div class="form-group passenger-form" id="form_{{ forloop.counter }}">
+                            <div class="input-field ml-3">
+                                {{ psngr.passenger|as_crispy_field }}
+                            </div>
+                            <button class="remove-passenger" type="button" data-form-id="form_{{ forloop.counter }}">Remove</button>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button class="our-button" id="add_passenger" type="button">Add Passenger</button>
+                <button class="our-button" type="submit">Submit</button>
             </div>
-
-            <button class="ourbutton" id="add_passenger" type="button">Add Passenger</button>
-            <button class="ourbutton" type="submit"> Submit </button>
-
-
-        </div>
-    </form>
+        </form>
     </div>
-
 </div>
 
 <script>
-    
-    
-    // v1. Working version
-    const add_passenger = document.getElementById("add_passenger")
-    add_passenger.addEventListener('click', add_passengerForm)
-    const form = document.getElementById("form_1")
-    let totalForms = document.querySelector("#id_form-TOTAL_FORMS")
-    let form_count = 0
-    
-    function add_passengerForm(event){
-        if(event){
-            event.preventDefault()
-        }
-        form_count++
-        
-        let current_form = document.getElementById("passenger_form_list")
-        let duplicate_form = form.cloneNode(true)
+    // Function to add a new passenger form field with animation
+    function addPassengerForm() {
+        const passengerFormList = document.getElementById("passenger_form_list");
+        const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
 
-        let formRegex = RegExp('form-(\\d){1}-', 'g')
-        duplicate_form.innerHTML = duplicate_form.innerHTML.replace(formRegex, `form-${form_count}-`)
-        current_form.append(duplicate_form)
-        totalForms.setAttribute('value', `${form_count+1}`)
+        // Clone the last passenger form field and update its attributes
+        const lastPassengerForm = passengerFormList.lastElementChild.cloneNode(true);
+        const formCount = parseInt(totalForms.value) + 1;
+        lastPassengerForm.setAttribute("id", `form_${formCount}`);
 
-        // v1 kinda working
-        // duplicate_form.setAttribute('id', 'form_' + form_count)
-        // current_form.append(duplicate_form)
-        // totalForms.setAttribute('value', `${form_count+1}`)
+        // Update the IDs of the form fields inside the cloned form
+        lastPassengerForm.querySelectorAll("input, select, textarea").forEach(field => {
+            const oldId = field.getAttribute("id");
+            const newId = oldId.replace(/\d+$/, formCount);
+            field.setAttribute("id", newId);
+            field.setAttribute("name", newId);
+            field.value = ""; // Clear the field value
+        });
+
+        // Apply fade-in animation
+        lastPassengerForm.style.opacity = 0;
+        passengerFormList.appendChild(lastPassengerForm);
+        setTimeout(() => {
+            lastPassengerForm.style.opacity = 1;
+        }, 10);
+
+        // Update the total forms count
+        totalForms.setAttribute("value", formCount);
     }
-    
-    // --------- end ----------
- 
-        // const empty_form = document.getElementsByName("passenger").cloneNode(true)
-        // empty_form.setAttribute('class', 'form1 ml-3')
-        // current_form.append(empty_form)
-    // }
-</script>
 
+    // Function to remove a passenger form field with animation
+    function removePassengerForm(formId) {
+        const passengerForm = document.getElementById(formId);
+        passengerForm.style.opacity = 0;
+        setTimeout(() => {
+            passengerForm.remove();
+        }, 500); // Wait for the fade-out animation to complete
+
+        // Update the total forms count
+        const totalForms = document.querySelector("#id_form-TOTAL_FORMS");
+        const formCount = parseInt(totalForms.value) - 1;
+        totalForms.setAttribute("value", formCount);
+    }
+
+    // Add event listener for the "Add Passenger" button
+    document.getElementById("add_passenger").addEventListener("click", addPassengerForm);
+
+    // Add event listener for dynamically added remove buttons
+    document.addEventListener("click", function(event) {
+        if (event.target.classList.contains("remove-passenger")) {
+            const formId = event.target.getAttribute("data-form-id");
+            removePassengerForm(formId);
+        }
+    });
+</script>
 {% endblock %}
