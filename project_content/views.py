@@ -8,6 +8,7 @@ import googlemaps
 from django.conf import settings
 from .forms import *
 from datetime import datetime
+from django.db.models import F
 
 from django.contrib.auth.models import auth
 from django.contrib.auth.decorators import login_required
@@ -99,7 +100,34 @@ class MapView(View):
         }
 
         return render(request, self.template_name, context)
+    
 
+def find_nearby_locations(latitude, longitude, max_distance_km=10):
+    """
+    Find locations near a given latitude and longitude within a specified distance
+    """
+    # Calculate the min and max latitude and longitude values for the bounding box
+    # around the central point (latitude, longitude)
+    lat_min = latitude - (max_distance_km / 111.32)
+    lat_max = latitude + (max_distance_km / 111.32)
+    lon_min = longitude - (max_distance_km / (111.32 * math.cos(math.radians(latitude))))
+    lon_max = longitude + (max_distance_km / (111.32 * math.cos(math.radians(latitude))))
+
+    # Filter locations within the bounding box
+    nearby_locations = Locations.objects.filter(lat__range=(lat_min, lat_max), 
+                                                 lng__range=(lon_min, lon_max))
+
+    # Calculate the distance between each location and the central point
+    # and annotate the queryset with the distance
+    nearby_locations = nearby_locations.annotate(distance=F('distance_km'))
+
+    # Filter locations within the specified distance
+    nearby_locations = nearby_locations.filter(distance__lte=max_distance_km)
+
+    # Sort locations by distance
+    nearby_locations = nearby_locations.order_by('distance')
+
+    return nearby_locations
 
 
 class DistanceView(View):
