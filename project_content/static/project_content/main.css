@@ -104,7 +104,8 @@ form{
 .linkholder{
     box-shadow: 0 0 20px rgba(0, 0, 0, .15);
     flex-direction: column;
-   
+    padding-left: 16px;
+    padding-right: 16px;
 }
 
 
