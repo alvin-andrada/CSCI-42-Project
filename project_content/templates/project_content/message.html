@@ -1,43 +1,33 @@
 {% extends 'project_content/base.html' %}
-{% load crispy_forms_tags %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Messages</title>
-    <!-- load static -->
-    {% load static %}
-    <!-- <link rel="stylesheet" href="{% static 'style.css' %}"> -->
-    <!-- link to h=css file -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-</head>
+
+{% block title %}
+Messages
+{% endblock title %}
+
 
 {% block content %}
 
 <body>
     <div class="parent">
         <div class="child-2">
-            <center><h2>Ateneo Carpool Chat</h2></center><hr>
+            <center><h2 class="chat-box-title">Chat Box</h2></center><hr>
             <div class="chat-body-parent">
                 <div class="chat-body" id="tasks">
                     <div class="message" id="chatContainer">
-                      <!-- received messages and displayed here -->
-                      {% for i in messages %}
-                        {% if i.sender != user %}
-                            <div class="receive">
-                                <p style="color: #000;"> {{i.message}}<strong>-{{i.sender}}</strong></p>
-                            </div>
-                        {% else %}
-                            <div class="send">
-                                <p style="color: #000;">{{i.message}}</p>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    <!-- end receive messages -->
+                        <!-- received messages displayed here -->
+                        {% for i in messages %}
+                            {% if i.sender != user %}
+                                <div class="receive">
+                                    <p style="color: #000;"><strong>{{i.sender|title}}:</strong> {{i.message}}</p>
+                                </div>
+                            {% else %}
+                                <div class="send">
+                                    <p style="color: white;">{{i.message}}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- end receive messages -->
                     </div>
 
                     <div class="form">
@@ -53,10 +43,41 @@
     </div>
 </body>
 <script>
+    // Function to send message
+    function sendMessage() {
+    const message = document.getElementById('msg').value;
+    // Check if the message is not empty before sending
+    if (message.trim() !== '') {
+        socket.send(
+            JSON.stringify({
+                'message': message,
+                'room_name': '{{room_name}}',
+                'sender': '{{user}}',
+            })
+        );
+        // Clear the textarea after sending the message
+        document.getElementById('msg').value = '';
+    }
+}
+
+    // Listen for the "keydown" event on the textarea
+    document.getElementById('msg').addEventListener('keydown', function(event){
+        // Check if the "Enter" key is pressed without Shift
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevent the default behavior of the "Enter" key
+            sendMessage(); // Call the sendMessage function
+        }
+    });
+
     function scrollToBottom() {
         var chatContainer = document.getElementById("chatContainer");
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
+    
+    // Call the scrollToBottom function when the page loads
+    window.onload = function() {
+        scrollToBottom();
+    };
 
     const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
     const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/notification/{{room_name}}/`;
@@ -120,32 +141,7 @@
 
 
     .parent {
-      background-color: #fdfdfd;
-    }
-
-    nav {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        background-color: #659DBD;
-        padding: 10px;
-    }
-
-    nav ul li {
-        list-style: none;
-        display: inline-block;
-        padding: 10px;
-    }
-
-    nav ul li:hover {
-        background-color: dodgerblue;
-        color: #fff;
-        transition: 0.8s;
-    }
-
-    nav ul li a {
-        text-decoration: none;
-        color: #fff;
+      background-color: white;
     }
 
     .parent {
@@ -219,7 +215,6 @@
         margin: 10px;
         border-radius: 10px;
         padding: 10px;
-        background-color: #d5d5d5;
     }
 
     .chat-body-parent {
@@ -237,6 +232,10 @@
         display: flex;      
         padding: 10px;
         flex-direction: column;
+        overflow-y: auto; /* Ensure scrollbar appears only when needed */
+        scrollbar-width: thin; /* Add a thin scrollbar */
+        scrollbar-color: #888 transparent; /* Set scrollbar color */
+
     }
 
     .message {
@@ -245,18 +244,14 @@
     }
 
     .chat-body .message .receive, .send {
-        background-color: #0084FF;
+        color: white;
         max-width: 400px;
-       
         border-radius: 10px;
         padding: 10px;
         margin-bottom: 10px;
+        font-size: 12px;
     }
 
-    .send:hover {
-        padding: 15px;
-        transition: 0.8s;
-    }
 
     .receive:hover {
         padding: 15px;
@@ -264,24 +259,50 @@
     }
 
     .chat-body .message .send {
+        background-color: #0084FF;
         align-self: flex-end;
     }
 
     .chat-body .message .receive {
+        background-color: white ;
         align-self: flex-start;
+    }
+
+    .receive strong {
+        text-transform: capitalize;
+    }
+
+    .receive, .send {
+        max-width: 70%; /* Adjust as needed */
+        word-wrap: break-word; /* Wrap long words */
+    }
+
+    .receive p, .send p {
+        margin: 1px; /* Add some margin for better readability */
+        padding: 1px; /* Add padding for better visual appearance */
+        border-radius: 5px; /* Rounded corners */
+        font-size: 15px; /* Set the font size to 12px */
+    }
+
+    .chat-box-title {
+        margin-top: 20px; /* Add margin on top of the Chat Box title */
     }
 
     form {
         display: flex;
-        align-items: center;
         justify-content: space-around;
+        align-items: center;  
+        margin-bottom: 10px;
+           
     }
 
     form textarea {
-        width: 70%;
+        width: 100%;
         height: 40px;
         border-radius: 10px;
         padding: 10px;
+        resize: none;
+        margin-bottom: 10px;
     }
 
     form button {
@@ -290,8 +311,14 @@
         background-color: #55b1fc;
         border-radius: 5px;
         border: none;
-        color: #000;
+        color: white;
+        font-weight: bold;
     }
+
+    form button:hover {
+    background-color: #377ec8; 
+}
+
     @media only screen and (max-width: 600px) {
     .child-2 {
         width: 100%;
