@@ -122,9 +122,9 @@ Messages
         // Append the message to the chatbox
         var messageDiv = document.querySelector('.message');
         if (sender != '{{user}}') { // Assuming you have a variable `currentUser` to hold the current user's name
-            messageDiv.innerHTML += '<div class="receive"><p style="color: #000;">' + message + '<strong>-' + sender + '</strong></p></div>';
+            messageDiv.innerHTML += '<div class="receive"><p style="/*color: #000;*/">' + message + '<strong>-' + sender + '</strong></p></div>';
         } else {
-            messageDiv.innerHTML += '<div class="send"><p style="color: #000;">' + message + '</p></div>';
+            messageDiv.innerHTML += '<div class="send"><p style="/*color: #000;*/">' + message + '</p></div>';
         }
         scrollToBottom();
     });
@@ -308,15 +308,17 @@ Messages
     form button {
         width: 25%;
         padding: 10px;
-        background-color: #55b1fc;
+        background-color: var(--main-color); /*#55b1fc*/
         border-radius: 5px;
         border: none;
         color: white;
         font-weight: bold;
+        transition: background-color .15s ease-in-out; 
     }
 
     form button:hover {
-    background-color: #377ec8; 
+    background-color: var(--highlight-color); /*#377ec8*/
+    cursor: pointer;
 }
 
     @media only screen and (max-width: 600px) {

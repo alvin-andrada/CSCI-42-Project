@@ -69,16 +69,19 @@ input {
 }
 
 button {
-    background-color: #008cff;
+    background-color: var(--main-color); /*#008cff*/
     padding: 10px;
     color: white;
     border: none;
     border-radius: 5px;
     width: 20%;
+    transition: background-color .15s ease-in-out;
 }
 
 button:hover {
     padding: 15px;
+    cursor: pointer;
+    background-color: var(--highlight-color);
     transition: 0.8s;
 }
 </style>

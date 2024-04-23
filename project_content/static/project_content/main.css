@@ -1,3 +1,10 @@
+:root {
+    --main-color: #4881a8; /* #008CFF originally */
+    --highlight-color: #004e83;
+    --hover-color: #88888880;
+    --dark-color: #2D323E; /* unchanged */
+}
+
 .mapholder{
     height: 500px;
     width: 100%;
@@ -24,7 +31,7 @@
 }
 
 .myTable th {
-    background-color: #2D323E;
+    background-color: var(--dark-color);
     color: white;
     font-weight: bold;
   }
@@ -96,7 +103,7 @@ form{
 .titleholder{
     display: 'flex';
     justify-content:'space-between';
-    background-color: #4267B2;
+    background-color: var(--main-color);
     align-items: center;
     height: 40px;
 }
@@ -140,4 +147,41 @@ form{
 
 .navbar-brand{
     height: 2em;
+}
+
+/* TO REVERT BACK TO OLD COLORS REMOVE CSS VARS */
+
+.btn-primary {
+    background-color: var(--main-color) !important;
+    border-color: var(--main-color) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--highlight-color) !important;
+}
+
+.nav-link {
+    color: var(--main-color);
+    transition: background-color .15s ease-in-out;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.nav-link:hover {
+    background-color: var(--hover-color) !important;
+}
+
+.nav-link.active {
+    background-color: var(--main-color) !important;
+}
+
+/* DELETE BELOW TO REVERT BUTTONS TO OLD STYLE */
+.ourbutton {
+    background-color: var(--main-color);
+    transition: background-color .15s ease-in-out;
+}
+
+.ourbutton:hover {
+    background-color: var(--highlight-color);
+    cursor: pointer;
 }
