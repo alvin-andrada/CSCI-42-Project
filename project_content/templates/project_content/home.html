@@ -1,6 +1,5 @@
 {% extends 'project_content/base.html' %}
 {% block content %}
-{% load crispy_forms_tags %}
 <style>
     /* CSS Styling */
     @keyframes fadeIn {
@@ -18,8 +17,10 @@
         background-color: #f9f9f9;
         border-radius: 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        max-width: 800px;
+        max-width: 1000px;
         animation: fadeIn 0.5s ease-in-out;
+        position: relative;
+        z-index: 1;
     }
 
     .titleholder {
@@ -28,127 +29,115 @@
     }
 
     .title {
-        font-size: 36px; /* Increased font size */
+        font-size: 32px;
         font-weight: bold;
         color: #333;
         text-transform: uppercase;
         letter-spacing: 2px;
     }
 
-    .linkholder {
-        margin-top: 20px;
-    }
-
-    table {
+    .myTable {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
-        font-size: 20px; /* Increased font size */
+        border: 1px solid #ddd;
+        position: relative;
+        z-index: 1;
     }
 
-    th, td {
-        padding: 20px; /* Increased padding */
+    .myTable th,
+    .myTable td {
+        padding: 20px;
         text-align: left;
         border-bottom: 1px solid #ddd;
-        transition: transform 0.5s ease; /* Smooth transition */
+        font-size: 14px;
     }
 
-    th {
+    .myTable th {
         background-color: #f2f2f2;
+        color: #333;
     }
 
-    tr:hover td {
-        transform: scale(1.1); /* Scale up when hovered */
+    .myTable tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
     }
 
-    .form1 {
-        margin-top: 10px;
+    .myTable tbody tr:hover {
+        background-color: #f2f2f2;
+        transition: background-color 1.1s ease;
+        transform: scale(1.05);
     }
 
-    .ourbutton {
-        padding: 15px 30px;
-        background-color: blue;
+    .myTable tbody tr:hover .geocode-link {
         color: white;
-        border: none;
+        background-color: blue;
+    }
+
+    .geocode-link {
+        color: blue;
+        text-decoration: none;
+        border: 1px solid blue;
+        padding: 15px 30px;
         border-radius: 5px;
+        background-color: #fff;
         cursor: pointer;
-        transition: background-color 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 18px; /* Increased font size */
+        transition: all 1.1s ease;
+        outline: none;
+        display: inline-block;
     }
 
-    .ourbutton:hover {
-        background-color: #003366;
+    .geocode-link:focus {
+        box-shadow: 0 0 5px rgba(0, 0, 255, 0.5);
     }
 
-    /* Style for select elements */
-    select {
-        padding: 10px;
-        font-size: 16px; /* Increased font size */
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5H7z"/></svg>');
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        background-size: 16px 16px;
+    .geocode-link:active {
+        transform: translateY(1px);
+    }
+
+    /* Effects */
+    .pageholder:hover {
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     }
 
 </style>
 
 <div class="pageholder container">
     <div class="titleholder">
-        <div class="title"> Google Maps Distance API </div>
+        <div class="title"> Google Maps API Data </div>
     </div>
 
     <div class="linkholder">
-        {% if distances.count == 0 %}
-            <div> No data available </div>
+        {% if mydata.count == 0 %}
+        <div> No data available </div>
         {% else %}
-            <table id="ourtable3" class="myTable m-3">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>From location</th>
-                        <th>To location</th>
-                        <th>Mode</th>
-                        <th>Distance in km</th>
-                        <th>Duration in mins</th>
-                        <th>Duration traffic in mins</th>
-                    </tr>
-                </thead>
+        <table id="ourtable3" class="myTable m-3">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Zipcode</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th>Geocode link</th>
+                </tr>
+            </thead>
 
-                <tbody>
-                    {% for a in distances %}
-                    <tr>
-                        <td> {{a.id}} </td>
-                        <td> {{a.from_location}} </td>
-                        <td> {{a.to_location}} </td>
-                        <td> {{a.mode}} </td>
-                        <td> {{a.distance_km}} </td>
-                        <td> {{a.duration_mins}} </td>
-                        <td> {{a.duration_traffic_mins}} </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <tbody>
+                {% for a in mydata %}
+                <tr>
+                    <td style="vertical-align: middle; padding-right: 30px;"> {{a.id}} </td>
+                    <td style="vertical-align: middle;"> {{a.name}} </td>
+                    <td style="vertical-align: middle;"> {{a.address}} </td>
+                    <td style="vertical-align: middle;"> {{a.zipcode}} </td>
+                    <td style="vertical-align: middle;"> {{a.city}} </td>
+                    <td style="vertical-align: middle;"> {{a.country}} </td>
+                    <td style="vertical-align: middle; padding-left: 30px;"> <a class="geocode-link" href="{% url 'geocoding' a.id %}"> Geocode!</a> </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% endif %}
     </div>
-
-    <form method="post">
-        {% csrf_token %}
-        <div class="linkholder">
-            <div class="form1 ml-3"> {{form.from_location|as_crispy_field}} </div>
-            <div class="form1 ml-3"> {{form.to_location|as_crispy_field}} </div>
-            <div class="form1 ml-3"> {{form.mode|as_crispy_field}} </div>
-            <button class="ourbutton" type="submit"> Submit </button>
-        </div>
-    </form>
-
 </div>
 
 {% endblock %}
