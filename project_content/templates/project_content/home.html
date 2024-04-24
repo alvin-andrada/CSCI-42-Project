@@ -91,6 +91,20 @@
 
 </style>
 
+<div class="formholder">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    {% if user.userlocation %}
+    <div>Your current location is: {{ user.userlocation.user_location }}</div>
+    {% else %}
+    <div>You have not set a current location yet.</div>
+    {% endif %}
+</div>
+
 <div class="pageholder container">
     <div class="titleholder">
         <div class="title"> Google Maps API Data </div>

@@ -55,3 +55,8 @@ class PassengerForm(ModelForm):
         # fields = ['lat', 'lng']
         fields = []
         # exclude = '__all__'
+
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = UserLocation
+        fields = ('user_location',)

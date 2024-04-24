@@ -69,12 +69,26 @@ def profile_view(request):
     }
     return render(request, 'project_content/profile.html', context)
 
+@login_required
+def home(request):
+    user = request.user
+    if request.method == 'POST':
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            location = form.save(commit=False)
+            user_location = UserLocation.objects.get(user=user)
+            user_location.user_location = location.user_location
+            user_location.save()
+            return redirect('home')
+    else:
+        form = LocationForm()
+    return render(request, 'project_content/home.html', {'form': form})
 
-class HomeView(LoginRequiredMixin, ListView):
-    template_name = "project_content/home.html"
-    context_object_name = 'mydata'
-    model = Locations
-    success_url = "/"
+# class HomeView(LoginRequiredMixin, ListView):
+#     template_name = "project_content/home.html"
+#     context_object_name = 'mydata'
+#     model = Locations
+#     success_url = "/"
 
 class MapView(View): 
     template_name = "project_content/map.html"
