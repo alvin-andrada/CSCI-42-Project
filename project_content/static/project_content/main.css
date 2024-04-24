@@ -43,6 +43,9 @@
 
 .myTable td, .myTable th {
     border: 0.01em solid #e3e2e2;
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
   }
   
 .myTable tr:nth-child(even){background-color: var(--alternating-tr-color);}
@@ -127,6 +130,8 @@ form{
     font-weight: bold;
     font-size: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .title2{
