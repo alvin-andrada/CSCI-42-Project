@@ -1,8 +1,13 @@
 :root {
     --main-color: #4881a8; /* #008CFF originally */
     --highlight-color: #004e83;
-    --hover-color: #88888880;
+    --alternating-tr-color: #00000014;
+    --light-hover-color: #00000020;
+    --hover-color: #00000030;
     --dark-color: #2D323E; /* unchanged */
+    --alert-color: #a84848;
+    --highlight-alert-color: #990000;
+    --geocode-color: #0f91e7;
 }
 
 .mapholder{
@@ -40,7 +45,7 @@
     border: 0.01em solid #e3e2e2;
   }
   
-.myTable tr:nth-child(even){background-color: #f9f8f8;}
+.myTable tr:nth-child(even){background-color: var(--alternating-tr-color);}
 
 /* Formats the text*/ 
 #ourtable3_filter,
@@ -77,7 +82,7 @@ form{
 .ourbutton{
     margin-right: 10px;
     height: 30px;
-    width: 100px;
+    width: fit-content;
     margin-left: 15px;
     margin-bottom: 20px;
     border-radius: 5px;
@@ -184,4 +189,12 @@ form{
 .ourbutton:hover {
     background-color: var(--highlight-color);
     cursor: pointer;
+}
+
+tr {
+    transition: all 0.6s ease-in-out;
+}
+
+tr:hover {
+    background-color: var(--light-hover-color) !important;
 }
