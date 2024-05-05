@@ -263,20 +263,23 @@ class Route_CreateView(View):
 
     def get(self, request):
         form = DriverForm()
-        passengerSet = modelformset_factory(Locations, form=PassengerForm, extra=1)
-        passenger = passengerSet(queryset=Locations.objects.none())
+        # passengerSet = modelformset_factory(Locations, form=PassengerForm, extra=1)
+        # passenger = passengerSet(queryset=Locations.objects.none())
+        passengers = PassengerForm()
 
         context = {
             'driver': form,
-            'passengerFormset': passenger
+            'passengers': passengers
         }
 
         return render(request, self.template_name, context)
     
     def post(self, request):
         driver = DriverForm(request.POST)
-        passengerFormsetF = modelformset_factory(Locations, form=PassengerForm, extra=2)
-        passengerFormset = passengerFormsetF(request.POST)
+        passengers = PassengerForm(request.POST)
+        # passengerFormsetF = modelformset_factory(Locations, form=PassengerForm, extra=2)
+        # passengerFormset = passengerFormsetF(request.POST)
+        
         
         if driver.is_valid():
             origin = driver.cleaned_data['origin']
@@ -285,26 +288,6 @@ class Route_CreateView(View):
             destination_placeid = Locations.objects.get(name=destination).place_id
         
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
-
-        i = 0
-        passenger_list = []
-        passenger_coords = []
-        for p in passengerFormset:
-            i += 1
-            if p.is_valid():
-                cd = p.cleaned_data
-                data = cd["passenger"]
-                
-
-                passenger_geocode = gmaps.geocode(data)[0]
-                passenger_coords.append(tuple([
-                    passenger_geocode.get('geometry', {}).get('location', {}).get('lat', None),
-                    passenger_geocode.get('geometry', {}).get('location', {}).get('lng', None)
-                ]))
-
-                passenger_placeid = Locations.objects.get(name=data).place_id
-                waypoint = {"location": {"placeId": passenger_placeid},"stopover": True}
-                passenger_list.append(waypoint)
 
         origin_geocode = gmaps.geocode(origin)[0]
         origin_coords = []
@@ -317,17 +300,95 @@ class Route_CreateView(View):
         destination_coords.append(destination_geocode.get('geometry', {}).get('location', {}).get('lat', None))
         destination_coords.append(destination_geocode.get('geometry', {}).get('location', {}).get('lng', None))
         destination_coords = tuple(destination_coords)
-        
 
 
 
+
+
+
+
+        if passengers.is_valid():
+            passenger_locs = passengers.cleaned_data['passenger'].split(', ')
+            
+            locations_dict = {}
+            for l in Locations.objects.all():
+                locations_dict[l.name] = l
+
+            passenger_locs = [locations_dict[p] for p in passenger_locs]
+            
+        i = 0
+        passenger_coords = {}
+        passenger_placeids = {}
+        for p in passenger_locs:
+            i += 1
+            passenger_geocode = gmaps.geocode(p)[0]
+            passenger_coords[p] = tuple([
+                passenger_geocode.get('geometry', {}).get('location', {}).get('lat', None),
+                passenger_geocode.get('geometry', {}).get('location', {}).get('lng', None)
+            ])
+
+            passenger_placeids[p] = passenger_geocode['place_id']
+            
+
+        route = [origin]
+        route_properties = []
+
+        passenger_list = []
+        next_leg_choices = {}
+        next_leg_choices_times = {}
+        for p in passenger_locs:
+            calculate = gmaps.distance_matrix(
+                origin_coords,
+                passenger_coords[p],
+                mode = "driving",
+                departure_time = datetime.now()
+            )
+            next_leg_choices[p] = calculate['rows'][0]['elements'][0]['distance']['value'] / 1000
+            next_leg_choices_times[p] = (calculate['rows'][0]['elements'][0]['duration']['value'] / 60, calculate['rows'][0]['elements'][0]['distance']['value'] / 1000, f"{route[-1].name} to {p.name}")
+            passenger_list.append(passenger_placeids[p])
+        route.append(min(next_leg_choices, key=next_leg_choices.get))
+        route_properties.append(next_leg_choices_times[route[-1]])
+
+        while len(route) <= len(passenger_locs):
+            next_leg_choices = {}
+            for p in passenger_locs:
+                if p not in route:
+                    calculate = gmaps.distance_matrix(
+                        passenger_coords[route[-1]],
+                        passenger_coords[p],
+                        mode = "driving",
+                        departure_time = datetime.now()
+                    )
+                    next_leg_choices[p] = calculate['rows'][0]['elements'][0]['distance']['value'] / 1000
+                    next_leg_choices_times[p] = (calculate['rows'][0]['elements'][0]['duration']['value'] / 60, calculate['rows'][0]['elements'][0]['distance']['value'] / 1000, f"{route[-1].name} to {p}")
+            route.append(min(next_leg_choices, key=next_leg_choices.get))
+            route_properties.append(next_leg_choices_times[route[-1]])
+        route.append(destination)
 
         calculate = gmaps.distance_matrix(
-            origin_coords,
+            passenger_coords[route[-2]],
             destination_coords,
             mode = "driving",
             departure_time = datetime.now()
         )
+        route_properties.append((calculate['rows'][0]['elements'][0]['duration']['value'] / 60, calculate['rows'][0]['elements'][0]['distance']['value'] / 1000, f"{route[-2].name} to {route[-1].name}"))
+
+        total_distance = 0
+        total_duration = 0
+        for p in route_properties:
+            total_duration += p[0]
+            total_distance += p[1]
+        total_duration = round(total_duration, 2)
+        total_distance = round(total_distance, 2)
+        route_properties = [f"{p[2]}: {p[1]} km, {round(p[0], 2)} mins" for p in route_properties]
+        
+        
+            
+
+        
+        passenger_list = [{"location": {"placeId": passenger_placeid},"stopover": True} for passenger_placeid in passenger_list]
+        # waypoint = {"location": {"placeId": passenger_placeid},"stopover": True}
+        # passenger_list.append(waypoint)
 
         context = {
             "google_api_key": settings.GOOGLE_API_KEY,
@@ -340,6 +401,9 @@ class Route_CreateView(View):
             "duration_mins": calculate['rows'][0]['elements'][0]['duration']['value'] / 60,
             "passenger_list": passenger_list[0]['location']['placeId'],
             "passenger_coords": passenger_coords,
+            "route_properties": route_properties,
+            "total_duration": total_duration,
+            "total_distance": total_distance,
         }
 
         return render(request, self.display, context)

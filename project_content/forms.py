@@ -49,7 +49,8 @@ class DriverForm(ModelForm):
         fields = ['lat', 'lng']
 
 class PassengerForm(ModelForm):
-    passenger = forms.ModelChoiceField(label="passenger", required=False, queryset=Locations.objects.all())
+    # passenger = forms.ModelChoiceField(label="passenger", required=False, queryset=Locations.objects.all())
+    passenger = forms.CharField(label="passenger", widget=TextInput(), required=True)
     class Meta:
         model = Locations
         # fields = ['lat', 'lng']

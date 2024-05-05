@@ -141,7 +141,15 @@
                 </div>
 
                 <h3>Passengers</h3>
-                <div id="passenger_form_list">
+
+                <div class="form-group">
+                    <label for="id_destination">Passenger</label>
+                    <div class="text-field ml-3">
+                        {{ passengers.passenger|as_crispy_field }}
+                    </div>
+                </div>
+
+                <!-- <div id="passenger_form_list">
                     {{ passengerFormset.management_form }}
                     {% for psngr in passengerFormset %}
                         <p> {{ forloop.counter }} </p>
@@ -152,7 +160,7 @@
                             <button class="remove-passenger" type="button" data-form-id="form_{{ forloop.counter }}">Remove</button>
                         </div>
                     {% endfor %}
-                </div>
+                </div> -->
 
                 <button class="our-button" id="add_passenger" type="button">Add Passenger</button>
                 <button class="our-button" type="submit">Submit</button>
