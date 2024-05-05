@@ -144,8 +144,9 @@
                 <div id="passenger_form_list">
                     {{ passengerFormset.management_form }}
                     {% for psngr in passengerFormset %}
+                        <p> {{ forloop.counter }} </p>
                         <div class="form-group passenger-form" id="form_{{ forloop.counter }}">
-                            <div class="input-field ml-3">
+                            <div class="input-field ml-3" id="abcdefg">
                                 {{ psngr.passenger|as_crispy_field }}
                             </div>
                             <button class="remove-passenger" type="button" data-form-id="form_{{ forloop.counter }}">Remove</button>
@@ -172,9 +173,9 @@
         lastPassengerForm.setAttribute("id", `form_${formCount}`);
 
         // Update the IDs of the form fields inside the cloned form
-        lastPassengerForm.querySelectorAll("input, select, textarea").forEach(field => {
+        lastPassengerForm.querySelectorAll("input, select, textarea, div").forEach(field => {
             const oldId = field.getAttribute("id");
-            const newId = oldId.replace(/\d+$/, formCount);
+            const newId = oldId.replace(/\d+/, formCount);
             field.setAttribute("id", newId);
             field.setAttribute("name", newId);
             field.value = ""; // Clear the field value

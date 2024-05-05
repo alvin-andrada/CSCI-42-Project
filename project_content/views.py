@@ -275,8 +275,8 @@ class Route_CreateView(View):
     
     def post(self, request):
         driver = DriverForm(request.POST)
-        passengerFormset = modelformset_factory(Locations, form=PassengerForm, extra=2)
-        passengerForm = passengerFormset(request.POST)
+        passengerFormsetF = modelformset_factory(Locations, form=PassengerForm, extra=2)
+        passengerFormset = passengerFormsetF(request.POST)
         
         if driver.is_valid():
             origin = driver.cleaned_data['origin']
@@ -284,22 +284,62 @@ class Route_CreateView(View):
             origin_placeid = Locations.objects.get(name=origin).place_id
             destination_placeid = Locations.objects.get(name=destination).place_id
         
+        gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
+
+        i = 0
         passenger_list = []
-        for passenger in passengerForm:
-            if passenger.is_valid():
-                data = passenger.cleaned_data["passenger"]
+        passenger_coords = []
+        for p in passengerFormset:
+            i += 1
+            if p.is_valid():
+                cd = p.cleaned_data
+                data = cd["passenger"]
+                
+
+                passenger_geocode = gmaps.geocode(data)[0]
+                passenger_coords.append(tuple([
+                    passenger_geocode.get('geometry', {}).get('location', {}).get('lat', None),
+                    passenger_geocode.get('geometry', {}).get('location', {}).get('lng', None)
+                ]))
+
                 passenger_placeid = Locations.objects.get(name=data).place_id
                 waypoint = {"location": {"placeId": passenger_placeid},"stopover": True}
                 passenger_list.append(waypoint)
 
-        key=settings.GOOGLE_API_KEY
+        origin_geocode = gmaps.geocode(origin)[0]
+        origin_coords = []
+        origin_coords.append(origin_geocode.get('geometry', {}).get('location', {}).get('lat', None))
+        origin_coords.append(origin_geocode.get('geometry', {}).get('location', {}).get('lng', None))
+        origin_coords = tuple(origin_coords)
+
+        destination_geocode = gmaps.geocode(destination)[0]
+        destination_coords = []
+        destination_coords.append(destination_geocode.get('geometry', {}).get('location', {}).get('lat', None))
+        destination_coords.append(destination_geocode.get('geometry', {}).get('location', {}).get('lng', None))
+        destination_coords = tuple(destination_coords)
+        
+
+
+
+
+        calculate = gmaps.distance_matrix(
+            origin_coords,
+            destination_coords,
+            mode = "driving",
+            departure_time = datetime.now()
+        )
+
         context = {
-            "google_api_key": key,
+            "google_api_key": settings.GOOGLE_API_KEY,
             "origin": origin,
             "destination": destination,
             "waypoints": json.dumps(passenger_list),
             "origin_placeid": origin_placeid,
             "destination_placeid": destination_placeid,
+            "distance_km": calculate['rows'][0]['elements'][0]['distance']['value'] / 1000,
+            "duration_mins": calculate['rows'][0]['elements'][0]['duration']['value'] / 60,
+            "passenger_list": passenger_list[0]['location']['placeId'],
+            "passenger_coords": passenger_coords,
         }
 
         return render(request, self.display, context)
