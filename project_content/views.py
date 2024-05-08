@@ -304,11 +304,33 @@ class Route_CreateView(View):
 
 
 
+        a=[]
+        for u in User.objects.all():
+            a.append(u.username)
 
-
+        a2=[]
+        a3=[]
+        for u in UserLocation.objects.all():
+            a2.append(u.user)
+            a3.append(u.user_location)
 
         if passengers.is_valid():
-            passenger_locs = passengers.cleaned_data['passenger'].split(', ')
+            passenger_users = passengers.cleaned_data['passenger'].split(', ')
+            
+            users_dict = {}
+            for u in User.objects.all():
+                users_dict[u.username] = u
+
+            user_locations_dict = {}
+            for ul in UserLocation.objects.all():
+                user_locations_dict[ul.user] = ul.user_location
+
+            passenger_users = [users_dict[u] for u in passenger_users]
+            passenger_users = [user_locations_dict[u] for u in passenger_users]
+
+        if passengers.is_valid():
+            passenger_locs = passenger_users
+            # passenger_locs = passengers.cleaned_data['passenger'].split(', ')
             
             locations_dict = {}
             for l in Locations.objects.all():
@@ -378,9 +400,9 @@ class Route_CreateView(View):
         for p in route_properties:
             total_duration += p[0]
             total_distance += p[1]
-        total_duration = round(total_duration, 2)
-        total_distance = round(total_distance, 2)
-        route_properties = [f"{p[2]}: {p[1]} km, {round(p[0], 2)} mins" for p in route_properties]
+        total_duration = round(total_duration)
+        total_distance = round(total_distance, 1)
+        route_properties = [f"{p[2]}: {round(p[1], 1)} km, {round(p[0])} mins" for p in route_properties]
         
         
             
