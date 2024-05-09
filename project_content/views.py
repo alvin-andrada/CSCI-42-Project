@@ -76,7 +76,10 @@ def home(request):
         form = LocationForm(request.POST)
         if form.is_valid():
             location = form.save(commit=False)
-            user_location = UserLocation.objects.get(user=user)
+            try:
+                user_location = UserLocation.objects.get(user=user)
+            except:
+                user_location = UserLocation(user=user)
             user_location.user_location = location.user_location
             user_location.save()
             return redirect('home')
@@ -304,16 +307,6 @@ class Route_CreateView(View):
 
 
 
-        a=[]
-        for u in User.objects.all():
-            a.append(u.username)
-
-        a2=[]
-        a3=[]
-        for u in UserLocation.objects.all():
-            a2.append(u.user)
-            a3.append(u.user_location)
-
         if passengers.is_valid():
             passenger_users = passengers.cleaned_data['passenger'].split(', ')
             
@@ -325,11 +318,9 @@ class Route_CreateView(View):
             for ul in UserLocation.objects.all():
                 user_locations_dict[ul.user] = ul.user_location
 
-            passenger_users = [users_dict[u] for u in passenger_users]
-            passenger_users = [user_locations_dict[u] for u in passenger_users]
+            usernames_list = passenger_users
 
-        if passengers.is_valid():
-            passenger_locs = passenger_users
+            passenger_locs = [user_locations_dict[users_dict[u]] for u in passenger_users]
             # passenger_locs = passengers.cleaned_data['passenger'].split(', ')
             
             locations_dict = {}
@@ -337,6 +328,10 @@ class Route_CreateView(View):
                 locations_dict[l.name] = l
 
             passenger_locs = [locations_dict[p] for p in passenger_locs]
+
+            
+
+
             
         i = 0
         passenger_coords = {}
@@ -423,6 +418,7 @@ class Route_CreateView(View):
             "duration_mins": calculate['rows'][0]['elements'][0]['duration']['value'] / 60,
             "passenger_list": passenger_list[0]['location']['placeId'],
             "passenger_coords": passenger_coords,
+            "passenger_locations": [f"{passenger_locs[i]} - {passenger_users[i]}" for i in range(len(passenger_users))],
             "route_properties": route_properties,
             "total_duration": total_duration,
             "total_distance": total_distance,

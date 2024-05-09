@@ -19,16 +19,16 @@
     <!-- <p> Distance: {{ distance_km }} km </p>
     <p> Duration: {{ duration_mins }} minutes </p> -->
 
-    <b> Passenger Stops: </b>
+    <b> Passenger Stops </b>
     <ul>
-        {% for passenger in passenger_coords %}
+        {% for passenger in passenger_locations %}
         <li> {{ passenger }} </li>
         {% endfor %}
     </ul>
 
     <br>
 
-    <b> Route: </b>
+    <b> Route </b>
     <p> Total Duration: {{ total_duration }} min
     <br> Total Distance: {{ total_distance }} km </p>
     <ul>
