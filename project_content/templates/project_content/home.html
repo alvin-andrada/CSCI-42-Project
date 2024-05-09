@@ -100,18 +100,20 @@
 </style>
 
 <div class="formholder container">
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="ourbutton" type="submit">Save</button>
-    </form> 
-
     <div> Welcome, <b>{{ user }}</b>! <br> </div>
     {% if user.userlocation %}
     <div> Your current location is: <b>{{ user.userlocation.user_location }}</b></div>
     {% else %}
     <div>You have not set a current location yet.</div>
     {% endif %}
+    
+    <br>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="ourbutton" type="submit">Save</button>
+    </form> 
 </div>
 
 <div class="pageholder container">

@@ -116,6 +116,10 @@
         pointer-events: none;
         color: #999;
     }
+
+    .form-label {
+        display: none;
+    }
 </style>
 
 <div class="pageholder container">
@@ -143,7 +147,7 @@
                 <h3>Passengers</h3>
 
                 <div class="form-group">
-                    <label for="id_destination">Passenger</label>
+                    <label for="id_destination">Usernames of Passengers</label>
                     <div class="text-field ml-3">
                         {{ passengers.passenger|as_crispy_field }}
                     </div>
