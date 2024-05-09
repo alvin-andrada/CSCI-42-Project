@@ -104,10 +104,11 @@
         {% csrf_token %}
         {{ form.as_p }}
         <button class="ourbutton" type="submit">Save</button>
-    </form>
+    </form> 
 
+    <div> Welcome, <b>{{ user }}</b>! <br> </div>
     {% if user.userlocation %}
-    <div>Your current location is: {{ user.userlocation.user_location }}</div>
+    <div> Your current location is: <b>{{ user.userlocation.user_location }}</b></div>
     {% else %}
     <div>You have not set a current location yet.</div>
     {% endif %}
@@ -115,11 +116,11 @@
 
 <div class="pageholder container">
     <div class="titleholder">
-        <div class="title"> Google Maps API Data </div>
+        <div class="title"> Registered Locations </div>
     </div>
 
     <div class="linkholder">
-        {% if mydata.count == 0 %}
+        {% if locations.count == 0 %}
         <div> No data available </div>
         {% else %}
         <table id="ourtable3" class="myTable m-3">
@@ -136,7 +137,7 @@
             </thead>
 
             <tbody>
-                {% for a in mydata %}
+                {% for a in locations %}
                 <tr>
                     <td style="vertical-align: middle; padding-right: 30px;"> {{a.id}} </td>
                     <td style="vertical-align: middle;"> {{a.name}} </td>

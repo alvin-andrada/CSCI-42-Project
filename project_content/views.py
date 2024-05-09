@@ -85,7 +85,7 @@ def home(request):
             return redirect('home')
     else:
         form = LocationForm()
-    return render(request, 'project_content/home.html', {'form': form})
+    return render(request, 'project_content/home.html', {'form': form, 'locations': Locations.objects.all()})
 
 # class HomeView(LoginRequiredMixin, ListView):
 #     template_name = "project_content/home.html"
