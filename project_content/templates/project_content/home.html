@@ -89,13 +89,21 @@
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     }
 
+    button {
+        padding: 10px;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        width: 100%;
+    }
+
 </style>
 
 <div class="formholder container">
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Save</button>
+        <button class="ourbutton" type="submit">Save</button>
     </form>
 
     {% if user.userlocation %}
