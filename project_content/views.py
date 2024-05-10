@@ -211,6 +211,17 @@ class DistanceView(View):
             print(form.errors)
         
         return redirect('distance')
+    
+
+class DestinationRequestsView(View):
+    template_name = "project_content/destination_requests.html"
+
+    def get(self, request): 
+        context = {
+            'data': DestinationRequest.objects.all()
+        }
+
+        return render(request, self.template_name, context)
 
 
 class GeocodingView(View):

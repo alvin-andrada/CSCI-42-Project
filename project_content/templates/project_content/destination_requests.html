@@ -1,0 +1,37 @@
+{% extends 'project_content/base.html' %}
+
+{% block content %}
+
+<div class="pageholder container" style="width: 100%;">
+    <div class="titleholder"> 
+        
+        <div class="title"> Requests from Passengers </div> 
+        
+    </div>
+
+
+    <div class="linkholder" style="margin-left: auto; margin-right: auto;">
+            <table id="ourtable3" class="myTable m-3">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Destination</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for passenger in data %}
+                    <tr>
+                        <td> {{ passenger.user }} </td>
+                        <td> {{ passenger.destination }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+     </div>
+
+    
+
+</div>
+
+{% endblock %}

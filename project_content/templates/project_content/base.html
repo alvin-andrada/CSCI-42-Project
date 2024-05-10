@@ -50,6 +50,9 @@
                     <a class="nav-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}" href="{% url 'map' %}">Map</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'destination_requests' %}active{% endif %}" href="{% url 'destination_requests' %}">Ride Requests</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if request.resolver_match.url_name == 'my_route_view' %}active{% endif %}" href="{% url 'my_route_view' %}">Route</a>
                 </li>
                 <li class="nav-item">
