@@ -5,3 +5,5 @@ from .models import *
 admin.site.register(Locations)
 admin.site.register(Room)
 admin.site.register(Message)
+admin.site.register(UserLocation)
+admin.site.register(DestinationRequest)

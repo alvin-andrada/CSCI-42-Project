@@ -52,3 +52,10 @@ class UserLocation(models.Model):
 
     def __str__(self):
         return self.user_location
+    
+class DestinationRequest(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    destination = models.OneToOneField(Locations, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.destination
