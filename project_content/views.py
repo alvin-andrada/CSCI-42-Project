@@ -217,11 +217,28 @@ class DestinationRequestsView(View):
     template_name = "project_content/destination_requests.html"
 
     def get(self, request): 
+        form = DestinationRequestForm()
+
         context = {
-            'data': DestinationRequest.objects.all()
+            'form': form,
+            'data': DestinationRequest.objects.all(),
+            'user_locations': UserLocation.objects.all()
         }
 
         return render(request, self.template_name, context)
+    
+    def post(self, request):
+        form = DestinationRequestForm(request.POST)
+        user = request.user
+        if form.is_valid():
+            form_destination = form.save(commit=False)
+            try:
+                destination_request = DestinationRequest.objects.get(user=user)
+            except:
+                destination_request = DestinationRequest(user=user)
+            destination_request.destination = form_destination.destination
+            destination_request.save()
+            return redirect('destination_requests')
 
 
 class GeocodingView(View):

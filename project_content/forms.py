@@ -61,3 +61,8 @@ class LocationForm(forms.ModelForm):
     class Meta:
         model = UserLocation
         fields = ('user_location',)
+
+class DestinationRequestForm(forms.ModelForm):
+    class Meta:
+        model = DestinationRequest
+        fields = ('destination',)

@@ -3,10 +3,15 @@
 {% block content %}
 
 <div class="pageholder container" style="width: 100%;">
+    <div> Welcome, <b>{{ user }}</b>! <br><br> </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="ourbutton" type="submit">Save</button>
+    </form> 
+
     <div class="titleholder"> 
-        
         <div class="title"> Requests from Passengers </div> 
-        
     </div>
 
 
@@ -24,6 +29,31 @@
                     <tr>
                         <td> {{ passenger.user }} </td>
                         <td> {{ passenger.destination }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+     </div>
+
+     <div class="titleholder"> 
+        <div class="title"> Passenger Locations </div> 
+    </div>
+
+
+    <div class="linkholder" style="margin-left: auto; margin-right: auto;">
+            <table id="ourtable3" class="myTable m-3">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for passenger in user_locations %}
+                    <tr>
+                        <td> {{ passenger.user }} </td>
+                        <td> {{ passenger.user_location }} </td>
                     </tr>
                     {% endfor %}
                 </tbody>
