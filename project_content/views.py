@@ -354,7 +354,7 @@ class Route_CreateView(View):
 
 
         if passengers.is_valid():
-            passenger_users = passengers.cleaned_data['passenger'].split(', ')
+            passenger_limit = passengers.cleaned_data['passenger']
             
             users_dict = {}
             for u in User.objects.all():
@@ -368,10 +368,7 @@ class Route_CreateView(View):
             for l in Locations.objects.all():
                 locations_dict[l.name] = l
 
-            usernames_list = passenger_users
 
-
-            passenger_limit = 2
             filtered_destination_requests = DestinationRequest.objects.filter(destination=destination)
             filtered_destination_requests_users = [f.user for f in filtered_destination_requests]
             passenger_scores = {}

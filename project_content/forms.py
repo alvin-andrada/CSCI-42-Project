@@ -5,7 +5,7 @@ from .models import *
 # User authentication imports
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
 from django.contrib.auth.models import User
-from django.forms.widgets import PasswordInput, TextInput
+from django.forms.widgets import PasswordInput, TextInput, NumberInput
 
 
 modes = (
@@ -50,7 +50,7 @@ class DriverForm(ModelForm):
 
 class PassengerForm(ModelForm):
     # passenger = forms.ModelChoiceField(label="passenger", required=False, queryset=Locations.objects.all())
-    passenger = forms.CharField(label="passenger", widget=TextInput(), required=True)
+    passenger = forms.IntegerField(label="passenger", widget=NumberInput(), required=True)
     class Meta:
         model = Locations
         # fields = ['lat', 'lng']
