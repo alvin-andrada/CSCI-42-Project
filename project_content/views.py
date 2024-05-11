@@ -305,6 +305,21 @@ class Route_CreateView(View):
 
         return render(request, self.template_name, context)
     
+
+    def get_passenger_rating(self, origin_location, destination_location, passenger_location):
+        o = (float(origin_location.lat), float(origin_location.lng))
+        d = (float(destination_location.lat), float(destination_location.lng))
+        p = (float(passenger_location.lat), float(passenger_location.lng))
+
+        # https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+        # lat = x, lng = y, distance does not matter either way
+        num = abs( (d[0] - o[0]) * (p[1] - o[1]) - (p[0] - o[0]) * (d[1] - o[1]) )
+        num *= 1000 # for scaling
+        den = ( (d[0] - o[0]) ** 2 + (d[1] - o[1]) ** 2 ) ** 0.5
+
+        return num / den
+
+    
     def post(self, request):
         driver = DriverForm(request.POST)
         passengers = PassengerForm(request.POST)
@@ -332,6 +347,9 @@ class Route_CreateView(View):
         destination_coords.append(destination_geocode.get('geometry', {}).get('location', {}).get('lng', None))
         destination_coords = tuple(destination_coords)
 
+        
+
+
 
 
 
@@ -346,19 +364,31 @@ class Route_CreateView(View):
             for ul in UserLocation.objects.all():
                 user_locations_dict[ul.user] = ul.user_location
 
-            usernames_list = passenger_users
-
-            passenger_locs = [user_locations_dict[users_dict[u]] for u in passenger_users]
-            # passenger_locs = passengers.cleaned_data['passenger'].split(', ')
-            
             locations_dict = {}
             for l in Locations.objects.all():
                 locations_dict[l.name] = l
 
-            passenger_locs = [locations_dict[p] for p in passenger_locs]
+            usernames_list = passenger_users
+
+
+            passenger_limit = 2
+            filtered_destination_requests = DestinationRequest.objects.filter(destination=destination)
+            filtered_destination_requests_users = [f.user for f in filtered_destination_requests]
+            passenger_scores = {}
+
+            for u in filtered_destination_requests_users:
+                passenger_scores[u] = self.get_passenger_rating(origin, destination, locations_dict[user_locations_dict[u]])
+
+            passenger_limit = min(passenger_limit, len(filtered_destination_requests_users)) # if num of requests for a destination is less than limit
+
+            passenger_users = []
+            for _ in range(passenger_limit): # get <passenger_limit> lowest passenger scores
+                passenger_users.append( min(passenger_scores, key=passenger_scores.get) )
+                passenger_scores[passenger_users[-1]] = float('inf')
 
             
-
+            passenger_locs = [user_locations_dict[u] for u in passenger_users]
+            passenger_locs = [locations_dict[p] for p in passenger_locs]
 
             
         i = 0
@@ -446,11 +476,14 @@ class Route_CreateView(View):
             "duration_mins": calculate['rows'][0]['elements'][0]['duration']['value'] / 60,
             "passenger_list": passenger_list[0]['location']['placeId'],
             "passenger_coords": passenger_coords,
+            "passenger_limit": passenger_limit,
             "passenger_locations": [f"{passenger_locs[i]} - {passenger_users[i]}" for i in range(len(passenger_users))],
             "route_properties": route_properties,
             "total_duration": total_duration,
             "total_distance": total_distance,
         }
+
+        # raise SystemError # for debugging to view local vars in django
 
         return render(request, self.display, context)
         # return render(request, self.template_name, context)
