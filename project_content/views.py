@@ -522,7 +522,7 @@ class Route_CreateView(View):
 
 def CreateRoom(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        username = request.user.username
         room = request.POST['room']
 
         try:
